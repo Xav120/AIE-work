@@ -3,11 +3,11 @@ var Keyboard = function()
 	var self = this;
 	
 	window.addEventListener('keydown', 
-						function (evt){self.onKeyDown(evt)},
+						function (evt){self.onKeyDown(evt);},
 						false);
 	
 		window.addEventListener('keyup', 
-						function (evt){self.onKeyUp(evt)},
+						function (evt){self.onKeyUp(evt);},
 						false);
 	
 	this.keylisteners = new Array();
@@ -36,7 +36,7 @@ Keyboard.prototype.onKeyUp = function(evt)
 	this.keys[evt.keyCode] = false;
 }
 
-Keyboard.prototype.onKeyDown = function(evt)
+Keyboard.prototype.isKeyDown = function(keyCode)
 {
-	return this.keys[evt.keyCode];
+	return this.keys[keyCode];
 }
