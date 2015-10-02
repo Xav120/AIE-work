@@ -1,4 +1,4 @@
-var BULLET_SPEED = 3000;
+var BULLET_SPEED = 1000;
 
 var Bullet = function()
 {
