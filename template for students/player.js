@@ -159,7 +159,7 @@ Player.prototype.update = function(deltaTime)
 			if (this.sprite.currentAnimation != ANIM_SHOOT_LEFT )
 				this.sprite.setAnimation(ANIM_SHOOT_LEFT);
 		}
-		else
+		else if (this.direction == RIGHT)
 		{
 			if (this.sprite.currentAnimation != ANIM_SHOOT_RIGHT)
 				this.sprite.setAnimation(ANIM_SHOOT_RIGHT);
