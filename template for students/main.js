@@ -145,7 +145,6 @@ function runGame(deltaTime)
 	context.fillRect( 0, 0, canvas.width, canvas.height);
 	
 	context.drawImage(sky, 0, 0, canvas.width, canvas.height);
-	
 	var wanted_cam_x;
 	var wanted_cam_y;
 

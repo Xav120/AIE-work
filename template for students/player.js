@@ -1,5 +1,5 @@
 var METER = TILE;
-var GRAVITY = METER * 6.3 * 6;
+var GRAVITY = METER * 9 * 3;
 
 var MAXDX = METER * 10;
 var MAXDY = METER * 15;
@@ -182,6 +182,13 @@ Player.prototype.update = function(deltaTime)
 	{
 		if (this.shoot_cooldown <= 0)
 		{
+			if (!this.is_shoot_sfx_playing)
+			{
+				this.shoot_sfx
+				this.shoot_sfx.play();
+				this.is_shoot_sfx_playing = true;
+			}
+			
 			var jitter = Math.random() * 0.2 - 0.1;
 			
 			if (this.direction == left)			
@@ -194,7 +201,7 @@ Player.prototype.update = function(deltaTime)
 			this.cur_bullet_index ++;
 			if (this.cur_bullets_index >= this.max_bullets)
 			{
-				this.cur_bullets_index = 0
+				this.cur_bullets_index = 0;
 			}	
 		}
 	}
