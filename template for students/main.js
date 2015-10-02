@@ -1,5 +1,11 @@
 var canvas = document.getElementById("gameCanvas");
 var context = canvas.getContext("2d");
+var start = document.createElement("img");
+start.src = "splash.png"
+var gameover = document.createElement("img");
+gameover.src = "dead.png"
+var victory = document.createElement ("img")
+victory.src = "win.png";
 var congerts = document.createElement("img");
 congerts.src = "congerts.png"
 var sky = document.createElement("img");
@@ -37,9 +43,18 @@ function getDeltaTime()
 }
 
 //-------------------- Don't modify anything above here
+var STATE_SPLASH = 0;
+
+var STATE_GAME = 1;
+
+var STATE_GAMEOVER = 2;
+
+var STATE_VICTORY = 3;
 
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
+
+var gameState = STATE_SPLASH;
 
 var background_sound = new Howl(
 {
@@ -49,7 +64,7 @@ var background_sound = new Howl(
 	volume: 0.5
 	
 });
-//background_sound.play();
+background_sound.play();
 
 // some variables to calculate the Frames Per Second (FPS - this tells use
 // how fast our game is running, and allows us to make the game run at a 
@@ -59,9 +74,7 @@ var fpsCount = 0;
 var fpsTime = 0;
 var cam_x = 0;
 var cam_y = 0;
-var example_emitter = new Emitter();
 
-example_emitter.Initialise(200, 200, 1, 0, 3000, 1.5, 100, 0.5, true);
 
 function initialise ()
 {
@@ -95,7 +108,18 @@ function initialise ()
 }
 
 var cells = initialise();
+var splashTimer = 2;
 
+function runSplash(deltaTime)
+{
+	splashTimer -= deltaTime;
+	if(splashTimer <=0)
+	{
+		gameState = STATE_GAME;
+		return;
+	}
+	context.drawImage(start, 0, 0, canvas.width, canvas.height);
+}
 // load an image to draw
 var chuckNorris = document.createElement("img");
 chuckNorris.src = "hero.png";
@@ -103,20 +127,37 @@ chuckNorris.src = "hero.png";
 var player = new Player();
 var keyboard = new Keyboard();
 
-function run()
+function runVictory(deltaTime)
+{
+	gameState = STATE_VICTORY;	
+	context.drawImage(victory, 0, 0, canvas.width, canvas.height);
+}
+
+function runGameOver(deltaTime)
+{
+	gameState = STATE_GAMEOVER;
+	context.drawImage(gameover, 0, 0, canvas.width, canvas.height);
+}
+
+function runGame(deltaTime)
 {
 	context.fillStyle = "#ccc";		
 	context.fillRect( 0, 0, canvas.width, canvas.height);
 	
 	context.drawImage(sky, 0, 0, canvas.width, canvas.height);
 	
-
-	
-	
 	var wanted_cam_x;
 	var wanted_cam_y;
+
+	if(player.lives < 1)
+	{
+	gameState = STATE_GAMEOVER
+	}
 	
-	
+		if(player.x > 2000 && player.y > 400)
+	{
+	gameState = STATE_VICTORY
+	}
 	
 	wanted_cam_x = player.x - SCREEN_WIDTH/2;
 	wanted_cam_y = player.y - SCREEN_HEIGHT/2;
@@ -131,7 +172,6 @@ function run()
 	if (wanted_cam_y < MAP.th * TILE - SCREEN_HEIGHT)
 		wanted_cam_y = MAP.th * TILE - SCREEN_HEIGHT;
 	
-	var deltaTime = getDeltaTime();
 	
 	//context.drawImage(chuckNorris, SCREEN_WIDTH/2 - chuckNorris.width/2, SCREEN_HEIGHT/2 - chuckNorris.height/2);
 	
@@ -144,11 +184,7 @@ function run()
 	player.update(deltaTime);
 	player.draw(cam_x, cam_y);
 	context.drawImage(congerts, 1550 - cam_x, 340 - cam_y, congerts.width, congerts.height);
-		
-		
-	example_emitter.update(deltaTime);
-	example_emitter.draw(cam_x, cam_y);
-	
+
 	// update the frame counter 
 	fpsTime += deltaTime;
 	fpsCount++;
@@ -164,6 +200,35 @@ function run()
 	context.font="14px Arial";
 	context.fillText("FPS: " + fps, 5, 20, 100);
 }
+
+function run()
+{
+	context.fillStyle = "#ccc";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	
+	context.drawImage(sky, 0, 0, canvas.width, canvas.height)
+	
+	var deltaTime = getDeltaTime();
+	
+	switch(gameState)
+	{
+			case STATE_SPLASH:
+				runSplash(deltaTime);
+				break;
+			case STATE_GAME:
+				runGame(deltaTime);
+				break;
+			case STATE_GAMEOVER:
+			runGameOver(deltaTime);
+			break;
+			case STATE_VICTORY:
+			runVictory(deltaTime);
+			break;
+	}
+	
+	
+
+};
 
 
 //-------------------- Don't modify anything below here

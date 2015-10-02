@@ -1,5 +1,5 @@
 var METER = TILE;
-var GRAVITY = METER * 9.8 * 3;
+var GRAVITY = METER * 6.3 * 6;
 
 var MAXDX = METER * 10;
 var MAXDY = METER * 15;
@@ -20,7 +20,7 @@ var ANIM_WALK_RIGHT = 6;
 var ANIM_SHOOT_RIGHT = 7;
 var ANIM_MAX = 8;
 
-var JUMP = METER * 1500;
+var JUMP = METER * 2500;
 
 var Player = function()
 {
@@ -59,7 +59,7 @@ var Player = function()
 		this.sprite.setAnimationOffset(idx, -55, -87);
 	}
 	
-	this.x = 0 * TILE;
+	this.x = 2 * TILE;
 	this.y = 9 * TILE;
 	
 	this.width = 159;
@@ -79,15 +79,17 @@ var Player = function()
 	
 	this.life_image = document.createElement("img");
 	this.life_image.src = "life.png";
+	
 	this.max_bullets = 50;
 	this.bullets = [];
 	this.cur_bullets_idx = 0;
 	for(var idx = 0; idx < this.max_bullets; idx++)
 	{
-		this.bullets[idx] = new Bullet()
+		this.bullets[idx] = new Bullet();
 	}
+	
 	this.shoot_cooldown = 0.0;
-	this.shoot_timer = 0.5;
+	this.shoot_timer = 0.01;
 	
 	this.jump_sfx = new Howl(
 	{
@@ -121,20 +123,20 @@ Player.prototype.update = function(deltaTime)
 	{
 		left = true
 		this.direction = LEFT;
-		if (this.sprite.currentAnimation != ANIM_WALK_LEFT)
+		if (this.sprite.currentAnimation != ANIM_WALK_LEFT && !this.shooting)
 			this.sprite.setAnimation(ANIM_WALK_LEFT)
 	}
 	else if (keyboard.isKeyDown(keyboard.KEY_RIGHT))
 	{
 		right = true
 		this.direction = RIGHT;
-		if (this.sprite.currentAnimation != ANIM_WALK_RIGHT)
+		if (this.sprite.currentAnimation != ANIM_WALK_RIGHT && !this.shooting)
 			this.sprite.setAnimation(ANIM_WALK_RIGHT)
 
 	}
 	else
 	{
-		if (!this.jumping && !this.falling)
+		if (!this.jumping && !this.falling && !this.shooting)
 		{
 			if (this.direction == LEFT)
 			{
@@ -176,31 +178,34 @@ Player.prototype.update = function(deltaTime)
 			this.sprite.setAnimation(ANIM_JUMP_RIGHT)
 	}
 	
-	if (keyboard.isKeyDown(keyboard.key_shift))
+	if (keyboard.isKeyDown(keyboard.KEY_SHIFT))
 	{
-		if (this.cooldown <= 0)
+		if (this.shoot_cooldown <= 0)
 		{
-			var jitter = Math.random * 0.2 - 0.1;
+			var jitter = Math.random() * 0.2 - 0.1;
 			
 			if (this.direction == left)			
-			this.bullets[this.cur_bullet_index].fire(this.x, this.y, -1, jitter);
-		else
-			this.bullets[this.cur_bullet_index].fire(this.x, this.y, 1, jitter);
-		
-		this.shoot_cooldown = this.shoot_timer;
-		
-		
-		this.cur_bullet_index ++;
-		if (this.cur_bullet_index = 0);
+				this.bullets[this.cur_bullets_idx].fire(this.x, this.y, -1, jitter);
+			else
+				this.bullets[this.cur_bullets_idx].fire(this.x, this.y, 1, jitter);
+			
+			this.shoot_cooldown = this.shoot_timer;
+			
+			this.cur_bullet_index ++;
+			if (this.cur_bullets_index >= this.max_bullets)
+			{
+				this.cur_bullets_index = 0
+			}	
 		}
 	}
-	
 	if (this.shoot_cooldown > 0)
 		this.shoot_cooldown -= deltaTime;
+	
 	for (var i = 0; i < this.max_bullets; i++)
 	{
-			this.bullets[i].update
+		this.bullets[i].update(deltaTime);
 	}
+	
 	
 	
 	var wasleft = this.velocity_x < 0;
@@ -307,6 +312,11 @@ Player.prototype.update = function(deltaTime)
 
 Player.prototype.draw = function(_cam_x, _cam_y)
 {
+		for (var idx = 0; idx < this.lives; idx++)
+	{
+		context.drawImage(this.life_image, 40 + idx * (this.life_image.width), 40);
+	}
+	
 	this.sprite.draw(context, this.x - _cam_x, this.y - _cam_y);
 	
 	for (var idx = 0; idx < this.max_bullets; idx++)
@@ -314,8 +324,4 @@ Player.prototype.draw = function(_cam_x, _cam_y)
 		this.bullets[idx].draw(_cam_x, _cam_y);
 	}
 	
-	for (var idx = 0; idx < this.lives; idx++)
-	{
-		context.drawImage(this.life_image, 40 + idx * (this.life_image.width), 40);
-	}
 }
